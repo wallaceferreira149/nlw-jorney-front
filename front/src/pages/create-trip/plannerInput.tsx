@@ -20,9 +20,9 @@ export function PlannerInput({ isGuestInputOpen, toggleGuestInput }: PlannerInpu
 				<div className="flex items-center gap-2">
 					<Calendar className='size-5 text-zinc-400' />
 					<input
-						type="text"
+						type="date"
 						placeholder="Quando?"
-						className="bg-transparent text-lg placeholder-zinc-400 outline-none w-36"
+						className="bg-transparent text-lg placeholder-zinc-400 outline-none w-36 [color-scheme:dark]"
 						disabled={isGuestInputOpen}
 					/>
 				</div>
