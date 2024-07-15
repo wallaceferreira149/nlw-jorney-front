@@ -6,6 +6,7 @@ import java.util.UUID;
 import org.springframework.stereotype.Service;
 
 import dev.arcanus.api.participant.dto.ParticipantCreateResponse;
+import dev.arcanus.api.participant.dto.ParticipantDTO;
 import dev.arcanus.api.participant.dto.ParticipantRequestPayload;
 import dev.arcanus.api.participant.entities.Participant;
 import dev.arcanus.api.participant.repositories.ParticipantRepository;
@@ -57,6 +58,16 @@ public class ParticipantService {
 
       return participantRepository.save(participant);
     }
+  }
+
+  public List<ParticipantDTO> getAllParticipantsFromTrip(UUID tripId) {
+     return participantRepository.findByTripId(tripId).stream()
+     .map(participant -> new ParticipantDTO(
+      participant.getId(), 
+      participant.getName(), 
+      participant.getEmail(), 
+      participant.getIsConfirmed()))
+      .toList(); 
   }
 
 }

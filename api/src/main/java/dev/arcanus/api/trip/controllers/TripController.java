@@ -1,6 +1,7 @@
 package dev.arcanus.api.trip.controllers;
 
 import java.net.URI;
+import java.util.List;
 import java.util.UUID;
 
 import org.springframework.http.HttpStatus;
@@ -14,7 +15,9 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import dev.arcanus.api.participant.dto.ParticipantCreateResponse;
+import dev.arcanus.api.participant.dto.ParticipantDTO;
 import dev.arcanus.api.participant.dto.ParticipantRequestPayload;
+import dev.arcanus.api.participant.services.ParticipantService;
 import dev.arcanus.api.trip.dto.TripCreateResponse;
 import dev.arcanus.api.trip.dto.TripRequestPayload;
 import dev.arcanus.api.trip.entities.Trip;
@@ -24,6 +27,7 @@ import dev.arcanus.api.trip.useCases.FindTripByIdUseCase;
 import dev.arcanus.api.trip.useCases.InviteToTripUseCase;
 import dev.arcanus.api.trip.useCases.UpdateTripUseCase;
 import lombok.RequiredArgsConstructor;
+
 
 @RestController
 @RequestMapping("/trips")
@@ -35,6 +39,7 @@ public class TripController {
   private final UpdateTripUseCase updateTripUseCase;
   private final ConfirmTripUseCase confirmTripUseCase;
   private final InviteToTripUseCase inviteToTripUseCase;
+  private final ParticipantService participantService;
 
   @PostMapping
   public ResponseEntity<TripCreateResponse> createTrip(@RequestBody TripRequestPayload payload) {
@@ -86,5 +91,13 @@ public class TripController {
     }
     return ResponseEntity.ok(participant);
   }
+
+  @GetMapping("/{tripId}/participants")
+  public ResponseEntity<List<ParticipantDTO>> getAllParticipants(@PathVariable UUID tripId) {
+    List<ParticipantDTO> participants = participantService.getAllParticipantsFromTrip(tripId);
+    
+    return ResponseEntity.ok(participants);
+  }
+  
 
 }
