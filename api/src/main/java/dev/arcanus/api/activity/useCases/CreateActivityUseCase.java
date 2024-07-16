@@ -29,7 +29,7 @@ public class CreateActivityUseCase {
             Activity createdActivity = new Activity(dto);
             createdActivity.setTrip(trip);
             activityRepository.save(createdActivity);
-            List<ActivityDTO> activities = activityRepository.findAll().stream()
+            List<ActivityDTO> activities = activityRepository.findByTripId(tripId).stream()
                     .map(activity -> new ActivityDTO(
                             activity.getId(),
                             activity.getTitle(),

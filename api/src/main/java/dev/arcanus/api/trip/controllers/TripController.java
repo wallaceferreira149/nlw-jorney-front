@@ -18,6 +18,10 @@ import dev.arcanus.api.activity.dto.ActivityCreateDTO;
 import dev.arcanus.api.activity.dto.ActivityDTO;
 import dev.arcanus.api.activity.useCases.CreateActivityUseCase;
 import dev.arcanus.api.activity.useCases.GetAllActivitiesUseCase;
+import dev.arcanus.api.link.dto.LinkCreateDTO;
+import dev.arcanus.api.link.dto.LinkDTO;
+import dev.arcanus.api.link.useCases.CreateLinkUseCase;
+import dev.arcanus.api.link.useCases.GetLinksByTripUseCase;
 import dev.arcanus.api.participant.dto.ParticipantCreateResponse;
 import dev.arcanus.api.participant.dto.ParticipantDTO;
 import dev.arcanus.api.participant.dto.ParticipantRequestPayload;
@@ -45,6 +49,8 @@ public class TripController {
   private final ParticipantService participantService;
   private final CreateActivityUseCase createActivityUseCase;
   private final GetAllActivitiesUseCase getAllActivitiesUseCase;
+  private final CreateLinkUseCase createLinkUseCase;
+  private final GetLinksByTripUseCase getLinksByTripUseCase;
 
   @PostMapping
   public ResponseEntity<TripCreateResponse> createTrip(@RequestBody TripRequestPayload payload) {
@@ -107,7 +113,6 @@ public class TripController {
   @PostMapping("/{tripId}/activities")
   public ResponseEntity<List<ActivityDTO>> createActivity(
       @RequestBody ActivityCreateDTO dto, @PathVariable UUID tripId) {
-    System.out.println("DTO ---- " + dto);
     List<ActivityDTO> activities = createActivityUseCase.execute(tripId, dto);
     if (activities == null) {
       return ResponseEntity.notFound().build();
@@ -125,6 +130,28 @@ public class TripController {
     } else {
       return ResponseEntity.ok(activities);
     }
+  }
+
+  @PostMapping("/{tripId}/links")
+  public ResponseEntity<List<LinkDTO>> createLink(
+      @RequestBody LinkCreateDTO dto,
+      @PathVariable UUID tripId) {
+    List<LinkDTO> links = createLinkUseCase.execute(tripId, dto);
+    if (links == null) {
+      ResponseEntity.notFound().build();
+    } else {
+      return ResponseEntity.ok(links);
+    }
+    return null;
+  }
+
+  @GetMapping("/{tripId}/links")
+  public ResponseEntity<List<LinkDTO>> getAllLinks(@PathVariable UUID tripId) {
+    List<LinkDTO> links = getLinksByTripUseCase.execute(tripId);
+    if (links == null) {
+      return ResponseEntity.notFound().build();
+    }
+    return ResponseEntity.ok(links);
   }
 
 }

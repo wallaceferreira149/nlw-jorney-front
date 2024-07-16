@@ -27,7 +27,6 @@ public class ParticipantService {
         .map(email -> new Participant(email, trip)).toList();
 
     participantRepository.saveAll(participants);
-    System.out.println("Participants: " + participants);
   }
 
   public ParticipantCreateResponse registerParticipantToTrip(String email, Trip trip) {
@@ -61,13 +60,13 @@ public class ParticipantService {
   }
 
   public List<ParticipantDTO> getAllParticipantsFromTrip(UUID tripId) {
-     return participantRepository.findByTripId(tripId).stream()
-     .map(participant -> new ParticipantDTO(
-      participant.getId(), 
-      participant.getName(), 
-      participant.getEmail(), 
-      participant.getIsConfirmed()))
-      .toList(); 
+    return participantRepository.findByTripId(tripId).stream()
+        .map(participant -> new ParticipantDTO(
+            participant.getId(),
+            participant.getName(),
+            participant.getEmail(),
+            participant.getIsConfirmed()))
+        .toList();
   }
 
 }

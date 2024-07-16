@@ -16,7 +16,7 @@ public class GetAllActivitiesUseCase {
   private final ActivityRepository activityRepository;
 
   public List<ActivityDTO> execute(UUID tripId) {
-    List<ActivityDTO> activities = activityRepository.findAll().stream()
+    List<ActivityDTO> activities = activityRepository.findByTripId(tripId).stream()
         .map(activity -> new ActivityDTO(
             activity.getId(), activity.getTitle(), activity.getOccursAt()))
         .toList();
