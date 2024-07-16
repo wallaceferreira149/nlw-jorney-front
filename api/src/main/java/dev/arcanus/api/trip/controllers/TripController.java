@@ -14,6 +14,10 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import dev.arcanus.api.activity.dto.ActivityCreateDTO;
+import dev.arcanus.api.activity.dto.ActivityDTO;
+import dev.arcanus.api.activity.useCases.CreateActivityUseCase;
+import dev.arcanus.api.activity.useCases.GetAllActivitiesUseCase;
 import dev.arcanus.api.participant.dto.ParticipantCreateResponse;
 import dev.arcanus.api.participant.dto.ParticipantDTO;
 import dev.arcanus.api.participant.dto.ParticipantRequestPayload;
@@ -28,7 +32,6 @@ import dev.arcanus.api.trip.useCases.InviteToTripUseCase;
 import dev.arcanus.api.trip.useCases.UpdateTripUseCase;
 import lombok.RequiredArgsConstructor;
 
-
 @RestController
 @RequestMapping("/trips")
 @RequiredArgsConstructor
@@ -40,6 +43,8 @@ public class TripController {
   private final ConfirmTripUseCase confirmTripUseCase;
   private final InviteToTripUseCase inviteToTripUseCase;
   private final ParticipantService participantService;
+  private final CreateActivityUseCase createActivityUseCase;
+  private final GetAllActivitiesUseCase getAllActivitiesUseCase;
 
   @PostMapping
   public ResponseEntity<TripCreateResponse> createTrip(@RequestBody TripRequestPayload payload) {
@@ -95,9 +100,31 @@ public class TripController {
   @GetMapping("/{tripId}/participants")
   public ResponseEntity<List<ParticipantDTO>> getAllParticipants(@PathVariable UUID tripId) {
     List<ParticipantDTO> participants = participantService.getAllParticipantsFromTrip(tripId);
-    
+
     return ResponseEntity.ok(participants);
   }
-  
+
+  @PostMapping("/{tripId}/activities")
+  public ResponseEntity<List<ActivityDTO>> createActivity(
+      @RequestBody ActivityCreateDTO dto, @PathVariable UUID tripId) {
+    System.out.println("DTO ---- " + dto);
+    List<ActivityDTO> activities = createActivityUseCase.execute(tripId, dto);
+    if (activities == null) {
+      return ResponseEntity.notFound().build();
+    } else {
+      URI location = URI.create("/activities/" + tripId);
+      return ResponseEntity.created(location).body(activities);
+    }
+  }
+
+  @GetMapping("/{tripId}/activities")
+  public ResponseEntity<List<ActivityDTO>> getAllActivities(@PathVariable UUID tripId) {
+    List<ActivityDTO> activities = getAllActivitiesUseCase.execute(tripId);
+    if (activities == null) {
+      return ResponseEntity.notFound().build();
+    } else {
+      return ResponseEntity.ok(activities);
+    }
+  }
 
 }
