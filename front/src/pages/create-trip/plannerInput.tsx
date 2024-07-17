@@ -1,23 +1,35 @@
+import { format } from "date-fns";
 import { ArrowRight, Calendar, MapPin, Settings2, X } from "lucide-react";
 import { useState } from "react";
 import { DateRange, DayPicker } from "react-day-picker";
 import "react-day-picker/dist/style.css";
+import { Button } from "../../components/button";
 
 interface PlannerInputProps {
 	isGuestInputOpen: boolean;
 	toggleGuestInput: () => void;
+	setDestination: (destination: string) => void
+	dateRange?: DateRange | undefined
+	setDateRange: (range: DateRange | undefined) => void
 }
 
-export function PlannerInput({ isGuestInputOpen, toggleGuestInput }: PlannerInputProps) {
+export function PlannerInput({
+	isGuestInputOpen,
+	toggleGuestInput,
+	setDestination,
+	dateRange,
+	setDateRange
+}: PlannerInputProps) {
 	const [isDatePickerOpen, setIsDatePickerOpen] = useState(false)
-	// const initialRange: DateRange = {
-	// 	from: new Date(),
-	// 	to: addDays(new Date(), 3)
-	// }
-	const [range, setRange] = useState<DateRange | undefined>(undefined)
+
+
 	function toggleDatePickerModal() {
 		setIsDatePickerOpen(!isDatePickerOpen)
 	}
+
+	const displayedDate = dateRange && dateRange.from && dateRange.to
+		? format(dateRange.from, "d ' de ' LLL").concat(' até ').concat(format(dateRange.to, "d ' de ' LLL"))
+		: null
 
 	return (
 		<>
@@ -28,18 +40,20 @@ export function PlannerInput({ isGuestInputOpen, toggleGuestInput }: PlannerInpu
 						placeholder="Para onde você vai?"
 						className="bg-transparent text-lg placeholder-zinc-400 outline-none flex-1"
 						disabled={isGuestInputOpen}
+						onChange={event => setDestination(event.target.value)}
 					/>
 				</div>
 				<button
-					className="flex items-center gap-2 text-left"
+					className="flex items-center gap-2 text-left w-60"
 					disabled={isGuestInputOpen}
 					onClick={toggleDatePickerModal}
 				>
 					<Calendar className='size-5 text-zinc-400' />
 					<span
-						className="text-lg text-zinc-400 outline-none w-36 [color-scheme:dark]"
+						className="text-base text-zinc-400 flex-1 w-40"
 					>
-						Quando?
+						{displayedDate || 'Quando?'}
+
 					</span>
 				</button>
 
@@ -62,8 +76,8 @@ export function PlannerInput({ isGuestInputOpen, toggleGuestInput }: PlannerInpu
 							<div className="flex justify-center items-center">
 								<DayPicker
 									mode="range"
-									selected={range}
-									onSelect={setRange}
+									selected={dateRange}
+									onSelect={setDateRange}
 								/>
 							</div>
 
@@ -76,21 +90,18 @@ export function PlannerInput({ isGuestInputOpen, toggleGuestInput }: PlannerInpu
 				<div className="w-px h-6 bg-zinc-800"></div>
 
 				{isGuestInputOpen ? (
-					<button
-						className="bg-zinc-800 text-zinc-200 rounded-lg py-2 px-5 font-medium flex gap-2 items-center hover:bg-zinc-700"
+					<Button
+						variant="secondary"
 						onClick={toggleGuestInput}
 					>
 						Alterar local e data
 						<Settings2 className='size-5 text-zinc-200' />
-					</button>
+					</Button>
 				) : (
-					<button
-						className="bg-lime-300 text-lime-950 rounded-lg py-2 px-5 font-medium flex gap-2 items-center hover:bg-lime-400"
-						onClick={toggleGuestInput}
-					>
+					<Button variant="primary" onClick={toggleGuestInput}>
 						Continuar
 						<ArrowRight className='size-5 text-lime-950' />
-					</button>
+					</Button>
 				)}
 			</div>
 		</>
