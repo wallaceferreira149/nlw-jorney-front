@@ -60,7 +60,6 @@ export function CreateTripPage() {
     })
 
     const { tripId } = response.data
-    console.log("ENVIOU!!!")
 
     navigate(`/trips/${tripId}`)
   }

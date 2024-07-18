@@ -1,6 +1,8 @@
 import { CircleCheck, Plus, UserCog } from "lucide-react";
-import { FormEvent, useState } from "react";
+import { FormEvent, useEffect, useState } from "react";
+import { useParams } from "react-router-dom";
 import { Button } from "../../components/button";
+import { api } from "../../lib/axios";
 import { CreateActivityModal } from "./create-activity";
 import { CreateLinkModal } from "./create-link-modal";
 import { Guest } from "./guest";
@@ -8,7 +10,8 @@ import { ImportantLink } from "./important-link";
 import { TripDetail } from "./trip-detail";
 
 interface IImportantLink {
-  name: string
+  id: number
+  title: string
   url: string
 }
 
@@ -18,25 +21,41 @@ interface IActivity {
   time: string;
 }
 
-const guests = [
-  { name: 'Alice Johnson', email: 'alice@example.com', isConfirmed: true },
-  { name: 'Bob Smith', email: 'bob@example.com', isConfirmed: false },
-  { name: 'Charlie Brown', email: 'charlie@example.com', isConfirmed: true },
-  { name: 'Diana Miller', email: 'diana@example.com', isConfirmed: false },
-  { name: 'Ethan Wilson', email: 'ethan@example.com', isConfirmed: true },
-  { name: 'Fiona Lee', email: 'fiona@example.com', isConfirmed: false },
-  { name: 'George Davis', email: 'george@example.com', isConfirmed: true },
-  { name: 'Hannah Clark', email: 'hannah@example.com', isConfirmed: false },
-  { name: 'Ian Brown', email: 'ian@example.com', isConfirmed: true },
-  { name: 'Julia White', email: 'julia@example.com', isConfirmed: false }
-];
+interface IGuest {
+  id: string;
+  name: string;
+  email: string;
+  isConfirmed: boolean;
+}
+
+// const guests = [
+//   { name: 'Alice Johnson', email: 'alice@example.com', isConfirmed: true },
+//   { name: 'Bob Smith', email: 'bob@example.com', isConfirmed: false },
+//   { name: 'Charlie Brown', email: 'charlie@example.com', isConfirmed: true },
+//   { name: 'Diana Miller', email: 'diana@example.com', isConfirmed: false },
+//   { name: 'Ethan Wilson', email: 'ethan@example.com', isConfirmed: true },
+//   { name: 'Fiona Lee', email: 'fiona@example.com', isConfirmed: false },
+//   { name: 'George Davis', email: 'george@example.com', isConfirmed: true },
+//   { name: 'Hannah Clark', email: 'hannah@example.com', isConfirmed: false },
+//   { name: 'Ian Brown', email: 'ian@example.com', isConfirmed: true },
+//   { name: 'Julia White', email: 'julia@example.com', isConfirmed: false }
+// ];
 
 export function TripDetails() {
   const [isActivityModalOpen, setIsActivityModalOpen] = useState(false)
   const [isLinkModalOpen, setIsLinkModalOpen] = useState(false)
 
   const [importantLinks, setImportantLinks] = useState<IImportantLink[]>([])
+  const [guests, setGuests] = useState<IGuest[]>()
   const [activities, setActivities] = useState<IActivity[]>([])
+
+  const { tripId } = useParams()
+
+  useEffect(() => {
+    api.get(`/trips/${tripId}/links`).then(response => setImportantLinks(response.data))
+    api.get(`/trips/${tripId}/participants`).then(response => setGuests(response.data))
+  }, [])
+
 
   function toggleCreateActivityModal() {
     setIsActivityModalOpen(!isActivityModalOpen)
@@ -46,17 +65,21 @@ export function TripDetails() {
     setIsLinkModalOpen(!isLinkModalOpen)
   }
 
-  function createImportantLink(event: FormEvent<HTMLFormElement>) {
+  async function createImportantLink(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
     const data = new FormData(event.currentTarget)
-    const name = data.get("name")?.toString()
+    const title = data.get("title")?.toString()
     const url = data.get("url")?.toString()
-    if (!name || !url) return
-    const newLink = {
-      name,
+    if (!title || !url) return
+    const linkToCreate = {
+      title,
       url
     }
-    setImportantLinks([...importantLinks, newLink])
+    console.log(linkToCreate)
+    const response = await api.post(`/trips/${tripId}/links`, linkToCreate)
+    setImportantLinks(response.data)
+    console.log("RESPONSE", response.data)
+    console.log("STATE", importantLinks)
     toggleCreateLinkModal();
   }
 
@@ -143,7 +166,11 @@ export function TripDetails() {
         <aside className="w-80 space-y-6">
           <h2 className="font-semibold text-xl">Links importantes</h2>
           <div className="space-y-5">
-            {importantLinks.map(link => <ImportantLink name={link.name} url={link.url} />)}
+            {importantLinks.map(link => <ImportantLink
+              title={link.title}
+              url={link.url}
+              key={link.id}
+            />)}
             <Button
               variant="secondary"
               onClick={toggleCreateLinkModal}
@@ -159,8 +186,11 @@ export function TripDetails() {
           <h2 className="font-semibold text-xl">Convidados</h2>
           <div className="space-y-5">
             {/* convidados */}
-            {guests.map(guest => (
-              <Guest email={guest.email} name={guest.name} isConfirmed={guest.isConfirmed} />
+            {guests?.map(guest => (
+              <Guest
+                key={guest.id}
+                email={guest.email} name={guest.name}
+                isConfirmed={guest.isConfirmed} />
             ))}
             <Button
               variant="secondary"

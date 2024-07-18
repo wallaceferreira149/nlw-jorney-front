@@ -29,7 +29,7 @@ export function CreateLinkModal({ toggleCreateLinkModal, createImportantLink }: 
             <Tag className='text-zinc-400 size-5' />
             <input
               type="text"
-              name='name'
+              name='title'
               placeholder="Título do link"
               className="bg-transparent text-lg placeholder-zinc-400 outline-none flex-1"
             />
